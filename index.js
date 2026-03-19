@@ -80,4 +80,4 @@ client.on('messageCreate', async (message) => {
 
 });
 
-client.login("YOUR_BOT_TOKEN");
+require("dotenv").config();
