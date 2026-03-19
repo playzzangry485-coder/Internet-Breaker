@@ -38,9 +38,9 @@ client.on('messageCreate', async (message) => {
     });
 
     const stream = await play.stream(url);
-    const resource = createAudioResource(stream.stream);
-
-    const player = createAudioPlayer();
+      const resource = createAudioResource(stream.stream, {
+  inputType: stream.type
+});  const player = createAudioPlayer();
     player.play(resource);
 
     connection.subscribe(player);
