@@ -25,42 +25,50 @@ client.on('messageCreate', async (message) => {
 
   const play = require('play-dl');
 const ytSearch = require('yt-search');
-
 if (command === 'play') {
+
   if (!message.member.voice.channel) {
     return message.reply('Join VC first!');
   }
 
-  const query = args.join(" ");
-  if (!query) return message.reply('Give song name or link');
+  const query = args.join(" ").trim();
+
+  if (!query) {
+    return message.reply('Please send song name or link!');
+  }
 
   let url;
 
-  if (play.yt_validate(query) === 'video') {
-    url = query;
-  } else {
-    const search = await ytSearch(query);
-    if (!search.videos.length) return message.reply('No results');
-
-    url = search.videos[0].url;
-  }
-
-  const connection = joinVoiceChannel({
-    channelId: message.member.voice.channel.id,
-    guildId: message.guild.id,
-    adapterCreator: message.guild.voiceAdapterCreator
-  });
-
-  const stream = await play.stream(url);
-  const resource = createAudioResource(stream.stream, {
-    inputType: stream.type
-  });
-
-  const player = createAudioPlayer();
-  player.play(resource);
-
-  connection.subscribe(player);
-
-  message.reply(`Playing 🎶`);
+  try {
+    if (play.yt_validate(query) === 'video') {
+      url = query;
+    } else {
+      const search = await play.search(query, { limit: 1 });
+      if (!search.length) return message.reply('No results found!');
+      url = search[0].url;
     }
-  
+
+    const connection = joinVoiceChannel({
+      channelId: message.member.voice.channel.id,
+      guildId: message.guild.id,
+      adapterCreator: message.guild.voiceAdapterCreator
+    });
+
+    const stream = await play.stream(url);
+
+    const resource = createAudioResource(stream.stream, {
+      inputType: stream.type
+    });
+
+    const player = createAudioPlayer();
+    player.play(resource);
+
+    connection.subscribe(player);
+
+    message.reply(`🎶 Playing now!`);
+
+  } catch (err) {
+    console.error(err);
+    message.reply('Error playing song ❌');
+  }
+  }
