@@ -28,8 +28,7 @@ client.on('messageCreate', async (message) => {
       return message.reply('Join VC first!');
     }
 
-    const url = args[0];
-    if (!url) return message.reply('Give YouTube link');
+    const url = args.join(" ");    if (!url) return message.reply('Give YouTube link');
 
     const connection = joinVoiceChannel({
       channelId: message.member.voice.channel.id,
