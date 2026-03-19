@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
-const play = require('play-dl');
+const ytdl = require('ytdl-core');
 
 const client = new Client({
   intents: [
@@ -24,27 +24,29 @@ client.on('messageCreate', async (message) => {
   const command = args.shift().toLowerCase();
 
   if (command === 'play') {
-    if (!message.member.voice.channel) {
-      return message.reply('Join VC first!');
-    }
+  if (!message.member.voice.channel) {
+    return message.reply('Join VC first!');
+  }
 
-    const url = args.join(" ");    if (!url) return message.reply('Give YouTube link');
+  const url = args.join(" ");
+  if (!url) return message.reply('Give YouTube link');
 
-    const connection = joinVoiceChannel({
-      channelId: message.member.voice.channel.id,
-      guildId: message.guild.id,
-      adapterCreator: message.guild.voiceAdapterCreator
-    });
+  const connection = joinVoiceChannel({
+    channelId: message.member.voice.channel.id,
+    guildId: message.guild.id,
+    adapterCreator: message.guild.voiceAdapterCreator
+  });
 
-    const stream = await play.stream(url);
-      const resource = createAudioResource(stream.stream, {
-  inputType: stream.type
-});  const player = createAudioPlayer();
-    player.play(resource);
+  const stream = ytdl(url, { filter: 'audioonly' });
+  const resource = createAudioResource(stream);
 
-    connection.subscribe(player);
+  const player = createAudioPlayer();
+  player.play(resource);
 
-    message.reply('Playing 🎶');
+  connection.subscribe(player);
+
+  message.reply('Playing 🎶');
+  }
   }
 });
 
