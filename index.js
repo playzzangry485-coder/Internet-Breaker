@@ -1,12 +1,29 @@
+const { Client, GatewayIntentBits } = require('discord.js');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+const play = require("play-dl");
 
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+const prefix = ".";
+
+client.once('ready', () => {
+  console.log(`Logged in as ${client.user.tag}`);
+});
+
+// ✅ IMPORTANT: async here
 client.on('messageCreate', async (message) => {
 
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const args = message.content.slice(prefix.length).split(" ");
   const command = args.shift().toLowerCase();
-
-  const play = require("play-dl");
 
   if (command === 'play') {
 
@@ -21,7 +38,6 @@ client.on('messageCreate', async (message) => {
     }
 
     try {
-
       let url;
 
       if (play.yt_validate(query) === "video") {
@@ -54,7 +70,7 @@ client.on('messageCreate', async (message) => {
         message.reply("Error while playing ❌");
       });
 
-      message.reply(`🎶 Now playing!`);
+      message.reply("🎶 Now playing!");
 
     } catch (err) {
       console.error(err);
@@ -63,3 +79,5 @@ client.on('messageCreate', async (message) => {
   }
 
 });
+
+client.login("YOUR_BOT_TOKEN");
