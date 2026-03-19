@@ -23,13 +23,27 @@ client.on('messageCreate', async (message) => {
   const args = message.content.slice(prefix.length).split(" ");
   const command = args.shift().toLowerCase();
 
-  if (command === 'play') {
+  const play = require('play-dl');
+const ytSearch = require('yt-search');
+
+if (command === 'play') {
   if (!message.member.voice.channel) {
     return message.reply('Join VC first!');
   }
 
-  const url = args.join(" ");
-  if (!url) return message.reply('Give YouTube link');
+  const query = args.join(" ");
+  if (!query) return message.reply('Give song name or link');
+
+  let url;
+
+  if (play.yt_validate(query) === 'video') {
+    url = query;
+  } else {
+    const search = await ytSearch(query);
+    if (!search.videos.length) return message.reply('No results');
+
+    url = search.videos[0].url;
+  }
 
   const connection = joinVoiceChannel({
     channelId: message.member.voice.channel.id,
@@ -37,17 +51,16 @@ client.on('messageCreate', async (message) => {
     adapterCreator: message.guild.voiceAdapterCreator
   });
 
-  const stream = ytdl(url, { filter: 'audioonly' });
-  const resource = createAudioResource(stream);
+  const stream = await play.stream(url);
+  const resource = createAudioResource(stream.stream, {
+    inputType: stream.type
+  });
 
   const player = createAudioPlayer();
   player.play(resource);
 
   connection.subscribe(player);
 
-  message.reply('Playing 🎶');
-  }
-  }
-});
-
-client.login(process.env.TOKEN);
+  message.reply(`Playing 🎶`);
+    }
+  
