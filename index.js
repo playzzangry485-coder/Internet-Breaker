@@ -44,9 +44,12 @@ client.on('messageCreate', async (message) => {
         url = query;
       } else {
         const result = await play.search(query, { limit: 1 });
-        if (!result.length) return message.reply("No results found!");
-        url = result[0].url;
-      }
+console.log("URL:", url);
+if (!result || result.length === 0 || !result[0].url) {
+  return message.reply("❌ No results found!");
+}
+
+url = result[0].url;
 
       const stream = await play.stream(url);
 
