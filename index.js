@@ -1,3 +1,4 @@
+
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
 const play = require("play-dl");
@@ -17,7 +18,6 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-// ✅ IMPORTANT: async here
 client.on('messageCreate', async (message) => {
 
   if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -44,12 +44,15 @@ client.on('messageCreate', async (message) => {
         url = query;
       } else {
         const result = await play.search(query, { limit: 1 });
-console.log("URL:", url);
-if (!result || result.length === 0 || !result[0].url) {
-  return message.reply("❌ No results found!");
-}
 
-url = result[0].url;
+        if (!result || result.length === 0 || !result[0].url) {
+          return message.reply("❌ No results found!");
+        }
+
+        url = result[0].url;
+      }
+
+      console.log("URL:", url); // ✅ correct place
 
       const stream = await play.stream(url);
 
