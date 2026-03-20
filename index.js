@@ -80,4 +80,6 @@ client.on('messageCreate', async (message) => {
 
 });
 
-require("dotenv").config();
+});
+
+client.login(process.env.TOKEN);
